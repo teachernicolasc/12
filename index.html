@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reino de Lectoescritura Mágico</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            background: radial-gradient(circle at top, #2e1065 0%, #1e1b4b 60%, #0f172a 100%);
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .font-reading {
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        /* MARCO DE ILUSTRACIÓN MÁGICA */
+        .illustration-card {
+            background: radial-gradient(circle at center, #ffffff 0%, #f0f9ff 70%, #e0f2fe 100%);
+            box-shadow: 0 10px 25px -5px rgba(30, 27, 75, 0.4), inset 0 0 15px rgba(245, 158, 11, 0.25);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .illustration-card:hover {
+            transform: scale(1.03) translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(30, 27, 75, 0.5), inset 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+
+        /* ANIMACIONES DE TOBI EL DRAGÓN */
+        @keyframes dragon-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        @keyframes wing-flap {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-15deg) scaleY(1.1); }
+        }
+
+        @keyframes tail-wag {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(12deg); }
+        }
+
+        @keyframes eye-blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        @keyframes mouth-talk {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.6) translateY(1px); }
+        }
+
+        .anim-dragon-float { animation: dragon-float 3.5s ease-in-out infinite; }
+        .anim-wing-left { transform-origin: right center; animation: wing-flap 1.2s ease-in-out infinite; }
+        .anim-wing-right { transform-origin: left center; animation: wing-flap 1.2s ease-in-out infinite 0.2s; }
+        .anim-tail { transform-origin: left bottom; animation: tail-wag 2s ease-in-out infinite; }
+        .anim-eyes { transform-origin: center; animation: eye-blink 4s infinite; }
+        .anim-talking { animation: mouth-talk 0.25s ease-in-out infinite; }
+
+        /* REBOTES Y SACUDIDAS */
+        @keyframes happy-bounce {
+            0%, 100% { transform: scale(1) translateY(0); }
+            30% { transform: scale(1.12, 0.88) translateY(-18px); }
+            50% { transform: scale(0.95, 1.05) translateY(0); }
+            70% { transform: scale(1.05, 0.95) translateY(-6px); }
+        }
+        .animate-bounce-happy { animation: happy-bounce 0.75s ease; }
+
+        @keyframes gentle-shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .animate-shake { animation: gentle-shake 0.4s ease-in-out; }
+
+        /* TECLAS Y BOTONES 3D INFANTILES */
+        .key-btn {
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 0 #2563eb, 0 6px 10px rgba(0,0,0,0.25);
+        }
+        .key-btn:active, .key-btn.pressed {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #1d4ed8, 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .tile-btn {
+            box-shadow: 0 5px 0 #d97706, 0 8px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .tile-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+        }
+        .tile-btn:active {
+            transform: translateY(3px) scale(0.97);
+            box-shadow: 0 2px 0 #b45309;
+        }
+
+        .letter-slot {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3.5px dashed #60a5fa;
+            transition: all 0.25s ease;
+        }
+        .letter-slot.filled {
+            border: 3.5px solid #2563eb;
+            background: #ffffff;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        }
+
+        /* EFECTO CONFETI Y ESTRELLAS */
+        .star-sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: sparkle-fly 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes sparkle-fly {
+            0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(1.4) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased selection:bg-amber-300">
+
+    <!-- ENCABEZADO Y PROGRESO GENERAL -->
+    <header class="bg-indigo-950/90 backdrop-blur-md text-white p-3 md:p-4 border-b-4 border-amber-400 sticky top-0 z-40 shadow-xl">
+        <div class="max-w-5xl mx-auto flex flex-wrap justify-between items-center gap-2">
+            <!-- Título del Juego -->
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl md:text-4xl">🏰</span>
+                <div>
+                    <h1 class="text-lg md:text-2xl font-bold text-amber-300 tracking-wide leading-tight">
+                        Reino de Lectoescritura
+                    </h1>
+                    <p class="text-xs md:text-sm text-indigo-200 font-reading">Aventura Mágica de Primero Básico</p>
+                </div>
+            </div>
+
+            <!-- Progreso de Niveles (1 al 30) -->
+            <div class="flex items-center space-x-3 md:space-x-6">
+                <!-- Estrellas acumuladas -->
+                <div class="bg-amber-400/20 border-2 border-amber-400/60 rounded-full px-3 py-1 flex items-center space-x-2">
+                    <span class="text-xl md:text-2xl">⭐</span>
+                    <span id="star-count" class="text-lg md:text-xl font-bold text-amber-300">0</span>
+                </div>
+
+                <!-- Nivel actual -->
+                <div class="flex flex-col items-end">
+                    <span id="level-text" class="text-xs md:text-sm text-amber-200 font-bold">Nivel 1 de 30</span>
+                    <div class="w-28 md:w-36 bg-indigo-900 rounded-full h-3.5 border border-amber-300/40 overflow-hidden mt-1 shadow-inner">
+                        <div id="progress-bar" class="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 h-full w-0 transition-all duration-500 rounded-full"></div>
+                    </div>
+                </div>
+
+                <!-- Botón Mute -->
+                <button id="toggle-audio-btn" onclick="toggleMute()" class="p-2 bg-indigo-800 hover:bg-indigo-700 rounded-full border-2 border-indigo-300 transition text-lg" title="Sonido">
+                    🔊
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL JUEGO -->
+    <main class="flex-grow max-w-4xl w-full mx-auto p-3 md:p-5 flex flex-col justify-center items-center relative">
+
+        <!-- MASCOTA DRAGÓN TOBI -->
+        <div class="w-full mb-4 bg-gradient-to-r from-indigo-900/90 via-purple-900/90 to-indigo-950/90 backdrop-blur-md rounded-3xl p-3 md:p-4 border-2 border-amber-300/50 text-white shadow-xl flex items-center gap-3 md:gap-5 relative">
+            
+            <!-- SVG DRAGÓN TOBI -->
+            <div id="dragon-wrapper" class="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 anim-dragon-float relative cursor-pointer" onclick="speakCurrentWord()" title="Haz clic en Tobi para oír la palabra">
+                <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-lg">
+                    <!-- Cola -->
+                    <path class="anim-tail" d="M35,80 Q15,95 20,70 Q25,60 38,72" fill="#10B981" stroke="#047857" stroke-width="3"/>
+                    <polygon points="15,68 8,62 18,58" fill="#F59E0B"/>
+                    
+                    <!-- Ala Izquierda -->
+                    <path class="anim-wing-left" d="M45,50 Q25,25 10,40 Q25,50 40,58 Z" fill="#F59E0B" stroke="#D97706" stroke-width="2"/>
+                    
+                    <!-- Cuerpo -->
+                    <ellipse cx="55" cy="72" rx="26" ry="24" fill="#10B981" stroke="#047857" stroke-width="3"/>
+                    <!-- Barriguita -->
+                    <ellipse cx="58" cy="74" rx="16" ry="16" fill="#FDE047" opacity="0.9"/>
+                    
+                    <!-- Ala Derecha -->
+                    <path class="anim-wing-right" d="M65,50 Q85,25 100,40 Q85,50 70,58 Z" fill="#F59E0B" stroke="#D97706" stroke-width="2"/>
+                    
+                    <!-- Cabeza -->
+                    <circle cx="65" cy="40" r="22" fill="#10B981" stroke="#047857" stroke-width="3"/>
+                    <!-- Cuernos Mágicos -->
+                    <path d="M55,20 Q50,8 60,12" stroke="#F59E0B" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    <path d="M70,20 Q75,8 68,12" stroke="#F59E0B" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    
+                    <!-- Ojos Animados -->
+                    <g class="anim-eyes">
+                        <ellipse cx="58" cy="35" rx="5" ry="7" fill="#FFFFFF"/>
+                        <circle cx="59" cy="35" r="3" fill="#000000"/>
+                        <circle cx="60" cy="33" r="1" fill="#FFFFFF"/>
+                        
+                        <ellipse cx="74" cy="35" rx="5" ry="7" fill="#FFFFFF"/>
+                        <circle cx="75" cy="35" r="3" fill="#000000"/>
+                        <circle cx="76" cy="33" r="1" fill="#FFFFFF"/>
+                    </g>
+
+                    <!-- Hocico y Boca -->
+                    <ellipse cx="70" cy="46" rx="10" ry="7" fill="#059669"/>
+                    <circle cx="67" cy="44" r="1.2" fill="#047857"/>
+                    <circle cx="73" cy="44" r="1.2" fill="#047857"/>
+                    <path id="tobi-mouth" d="M63,49 Q70,54 77,49" stroke="#000000" stroke-width="2" fill="none"/>
+                    <polygon points="65,16 68,22 62,22" fill="#EF4444"/>
+                </svg>
+            </div>
+
+            <!-- Bocadillo de Instrucciones -->
+            <div class="flex-grow bg-white/95 text-slate-800 rounded-2xl p-3 md:p-4 shadow-md border-2 border-amber-300 relative font-reading">
+                <div class="absolute -left-3 top-6 w-0 h-0 border-y-8 border-y-transparent border-r-12 border-r-white/95"></div>
+                
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-bold text-amber-600 text-xs md:text-sm flex items-center gap-1">
+                        🐉 Dragón Tobi dice:
+                    </span>
+                    <span id="mode-badge" class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-indigo-200">
+                        Modo 1: Ordenar
+                    </span>
+                </div>
+                <p id="tobi-instruction" class="text-xs md:text-base font-bold text-indigo-950 leading-snug">
+                    ¡Cargando primera misión...!
+                </p>
+            </div>
+        </div>
+
+        <!-- TARJETA DEL JUEGO DE PALABRAS -->
+        <div id="game-card" class="w-full bg-white/95 backdrop-blur-md rounded-3xl p-4 md:p-7 shadow-2xl border-4 border-amber-300 relative overflow-hidden transition-all">
+
+            <!-- Banner de Nivel y Voz -->
+            <div class="flex justify-between items-center mb-3">
+                <span id="word-category" class="bg-purple-100 text-purple-900 text-xs md:text-sm font-bold px-3 py-1 rounded-full border border-purple-200">
+                    Palabra 1 de 30
+                </span>
+
+                <button onclick="speakCurrentWord()" class="flex items-center gap-2 bg-gradient-to-r from-amber-300 to-yellow-400 hover:from-amber-400 hover:to-yellow-500 text-indigo-950 px-3.5 py-1.5 rounded-full border-2 border-amber-200 text-xs md:text-sm font-extrabold transition transform active:scale-95 shadow-md">
+                    <span class="text-lg">🔊</span> Escuchar Palabra
+                </button>
+            </div>
+
+            <!-- Grid Ilustración + Zona de Trabajo -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center">
+
+                <!-- Columna Izquierda: ILUSTRACIÓN SVG -->
+                <div class="md:col-span-5 flex flex-col items-center justify-center">
+                    <div id="image-container" class="illustration-card w-52 h-52 md:w-60 md:h-60 rounded-3xl border-4 border-amber-400 p-3 flex items-center justify-center relative group cursor-pointer" onclick="speakCurrentWord()">
+                        <div id="svg-display" class="w-full h-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md">
+                            <!-- SVG renderizado dinámicamente -->
+                        </div>
+
+                        <div class="absolute bottom-2 right-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-indigo-950 p-2.5 rounded-full shadow-lg text-xs font-black border border-amber-200">
+                            🔊
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 font-reading text-center">
+                        Toca la ilustración para escuchar la palabra.
+                    </p>
+                </div>
+
+                <!-- Columna Derecha: CASILLAS Y TECLADOS -->
+                <div class="md:col-span-7 flex flex-col items-center justify-center w-full">
+
+                    <!-- CASILLAS DE LA PALABRA -->
+                    <div class="mb-5 w-full flex flex-col items-center">
+                        <span class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-2">Palabra a Formar</span>
+                        <div id="slots-container" class="flex flex-wrap justify-center gap-2 my-1">
+                            <!-- Ranuras generadas por JS -->
+                        </div>
+                    </div>
+
+                    <!-- MODO A: FICHAS PARA ORDENAR -->
+                    <div id="mode-order-controls" class="w-full flex flex-col items-center">
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">Toca las letras en el orden correcto:</span>
+                        <div id="letter-tiles-container" class="flex flex-wrap justify-center gap-2 p-3 bg-indigo-50/90 rounded-2xl border-2 border-indigo-200 min-h-[72px] w-full items-center">
+                            <!-- Fichas generadas -->
+                        </div>
+
+                        <div class="flex gap-3 mt-4">
+                            <button onclick="clearWord()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs md:text-sm transition flex items-center gap-1 shadow">
+                                <span>↩️</span> Borrar todo
+                            </button>
+                            <button onclick="giveHint()" class="px-4 py-2 bg-purple-200 hover:bg-purple-300 text-purple-900 font-bold rounded-xl text-xs md:text-sm transition flex items-center gap-1 shadow">
+                                <span>💡</span> Pista de Tobi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- MODO B: TECLADO VIRTUAL -->
+                    <div id="mode-type-controls" class="w-full flex flex-col items-center hidden">
+                        <div class="bg-blue-50 border border-blue-200 text-blue-900 text-xs px-3 py-1 rounded-lg mb-2 flex items-center gap-1">
+                            <span>⌨️</span> <span>¡Escribe con las teclas en pantalla o tu teclado real!</span>
+                        </div>
+
+                        <!-- Teclado Infantil -->
+                        <div id="virtual-keyboard" class="w-full max-w-md flex flex-col gap-1 p-2 bg-slate-200/80 rounded-2xl border-2 border-slate-300">
+                            <!-- Fila 1 -->
+                            <div class="flex justify-center gap-1">
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('Q')">Q</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('W')">W</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('E')">E</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('R')">R</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('T')">T</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('Y')">Y</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('U')">U</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('I')">I</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('O')">O</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('P')">P</button>
+                            </div>
+                            <!-- Fila 2 -->
+                            <div class="flex justify-center gap-1">
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('A')">A</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('S')">S</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('D')">D</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('F')">F</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('G')">G</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('H')">H</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('J')">J</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('K')">K</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('L')">L</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('Ñ')">Ñ</button>
+                            </div>
+                            <!-- Fila 3 -->
+                            <div class="flex justify-center gap-1">
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('Z')">Z</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('X')">X</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('C')">C</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('V')">V</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('B')">B</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('N')">N</button>
+                                <button class="key-btn bg-white text-indigo-950 font-black text-xs md:text-sm rounded-lg w-7 h-9 md:w-9 md:h-11 border border-slate-300" onclick="pressKey('M')">M</button>
+                                <button class="key-btn bg-amber-400 hover:bg-amber-500 text-indigo-950 font-bold text-xs rounded-lg px-2 h-9 md:h-11 border border-amber-500 flex items-center justify-center" onclick="deleteLastLetter()">
+                                    ⌫ Borrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL DE HITO DEL CASTILLO (CADA 5 NIVELES) Y FINAL -->
+    <div id="castle-milestone-modal" class="fixed inset-0 bg-indigo-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300">
+        <div class="bg-gradient-to-b from-indigo-900 via-purple-900 to-indigo-950 text-white rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl border-4 border-amber-400">
+            <span id="milestone-badge" class="bg-amber-400 text-indigo-950 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                ¡Hito Alcanzado!
+            </span>
+            <h3 id="milestone-title" class="text-2xl md:text-3xl font-extrabold text-amber-300 mt-2 mb-1">
+                ¡Tu Castillo ha Crecido! 🏰
+            </h3>
+            <p id="milestone-desc" class="text-sm font-reading text-indigo-100 mb-4">
+                ¡Completaste 5 palabras! Mira cómo evoluciona la fortaleza del reino.
+            </p>
+
+            <!-- ESCENA ILUSTRADA DEL CASTILLO SEGÚN EL HITO -->
+            <div class="relative w-full h-56 bg-gradient-to-b from-indigo-950 via-purple-950 to-emerald-950 rounded-2xl border-2 border-amber-300/60 overflow-hidden flex items-end justify-center mb-6">
+                <div id="castle-stage-svg" class="w-full h-full">
+                    <!-- SVG dinámico del progreso del castillo -->
+                </div>
+            </div>
+
+            <button id="milestone-btn" onclick="closeMilestoneModal()" class="w-full py-3.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-indigo-950 font-black text-lg rounded-2xl shadow-xl border-2 border-amber-200 transform active:scale-95 transition">
+                ¡Seguir Jugando! 🚀
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* ====================================================================
+           BANCO DE 30 PALABRAS ADAPTADO A 1° BÁSICO CON SVGs DETALLADOS
+           ==================================================================== */
+        const WORD_BANK = [
+            {
+                word: "REY",
+                hint: "Se sienta en el trono y lleva la corona dorada del reino.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-rey" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#312e81"/><stop offset="100%" stop-color="#1e1b4b"/></linearGradient><linearGradient id="g-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient><linearGradient id="g-red" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f43f5e"/><stop offset="100%" stop-color="#9f1239"/></linearGradient><radialGradient id="g-glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fef08a" stop-opacity="0.5"/><stop offset="100%" stop-color="#fef08a" stop-opacity="0"/></radialGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-rey)"/><circle cx="80" cy="80" r="70" fill="url(#g-glow)"/><path d="M40,140 L120,140 L115,85 L45,85 Z" fill="url(#g-red)" stroke="#78350f" stroke-width="2"/><path d="M35,140 L125,140" stroke="url(#g-gold)" stroke-width="8" stroke-linecap="round"/><circle cx="80" cy="70" r="28" fill="#fde047" stroke="#ca8a04" stroke-width="2"/><circle cx="70" cy="65" r="3.5" fill="#1e293b"/><circle cx="90" cy="65" r="3.5" fill="#1e293b"/><circle cx="71" cy="63" r="1" fill="#fff"/><circle cx="91" cy="63" r="1" fill="#fff"/><path d="M72,78 Q80,86 88,78" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/><path d="M58,80 C55,105 105,105 102,80 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><path d="M48,48 L112,48 L105,25 L90,38 L80,18 L70,38 L55,25 Z" fill="url(#g-gold)" stroke="#b45309" stroke-width="2"/><circle cx="48" cy="22" r="4.5" fill="#ef4444"/><circle cx="80" cy="14" r="5.5" fill="#3b82f6"/><circle cx="112" cy="22" r="4.5" fill="#10b981"/><circle cx="68" cy="48" r="3" fill="#ec4899"/><circle cx="92" cy="48" r="3" fill="#3b82f6"/><rect x="115" y="60" width="8" height="65" rx="3" fill="url(#g-gold)"/><circle cx="119" cy="55" r="8" fill="url(#g-red)"/><path d="M119,47 L119,63 M111,55 L127,55" stroke="url(#g-gold)" stroke-width="2.5"/></svg>`
+            },
+            {
+                word: "SOL",
+                hint: "Brilla alto e ilumina todo el cielo del reino.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-sky-sol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#bae6fd"/></linearGradient><radialGradient id="g-sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fef08a"/><stop offset="60%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></radialGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-sky-sol)"/><g stroke="#f59e0b" stroke-width="5" stroke-linecap="round" opacity="0.85"><line x1="80" y1="15" x2="80" y2="30"/><line x1="80" y1="130" x2="80" y2="145"/><line x1="15" y1="80" x2="30" y2="80"/><line x1="130" y1="80" x2="145" y2="80"/><line x1="34" y1="34" x2="45" y2="45"/><line x1="115" y1="115" x2="126" y2="126"/><line x1="34" y1="126" x2="45" y2="115"/><line x1="115" y1="45" x2="126" y2="34"/></g><circle cx="80" cy="80" r="42" fill="url(#g-sun)" stroke="#b45309" stroke-width="3"/><ellipse cx="68" cy="72" rx="4.5" ry="6" fill="#1e293b"/><ellipse cx="92" cy="72" rx="4.5" ry="6" fill="#1e293b"/><circle cx="70" cy="70" r="1.5" fill="#fff"/><circle cx="94" cy="70" r="1.5" fill="#fff"/><ellipse cx="60" cy="82" rx="5" ry="3" fill="#f43f5e" opacity="0.6"/><ellipse cx="100" cy="82" rx="5" ry="3" fill="#f43f5e" opacity="0.6"/><path d="M68,88 Q80,98 92,88" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/></svg>`
+            },
+            {
+                word: "PAN",
+                hint: "El panadero del rey lo hornea crujiente.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-pan" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff7ed"/><stop offset="100%" stop-color="#ffedd5"/></linearGradient><linearGradient id="g-bread" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="70%" stop-color="#d97706"/><stop offset="100%" stop-color="#78350f"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-pan)"/><ellipse cx="80" cy="120" rx="60" ry="18" fill="#e5e7eb"/><ellipse cx="80" cy="85" rx="55" ry="32" fill="url(#g-bread)" stroke="#451a03" stroke-width="4"/><path d="M50,75 Q60,95 55,100 M80,70 Q90,92 85,100 M110,75 Q120,95 115,100" stroke="#fef3c7" stroke-width="4" stroke-linecap="round"/><path d="M65,40 Q70,30 65,20 M85,38 Q90,28 85,18 M105,40 Q110,30 105,20" stroke="#d1d5db" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7"/></svg>`
+            },
+            {
+                word: "LUZ",
+                hint: "Antorcha encendida en los pasillos de la fortaleza.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-luz" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e1b4b"/></linearGradient><radialGradient id="g-flame-glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fef08a" stop-opacity="0.8"/><stop offset="50%" stop-color="#f59e0b" stop-opacity="0.3"/><stop offset="100%" stop-color="#0f172a" stop-opacity="0"/></radialGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-luz)"/><circle cx="80" cy="55" r="65" fill="url(#g-flame-glow)"/><rect x="73" y="80" width="14" height="60" fill="#78350f" stroke="#451a03" stroke-width="3" rx="4"/><path d="M65,80 L95,80 L90,92 L70,92 Z" fill="#94a3b8" stroke="#475569" stroke-width="2"/><path d="M80,18 C100,45 102,68 80,82 C58,68 60,45 80,18 Z" fill="#ef4444"/><path d="M80,32 C93,52 94,68 80,78 C66,68 67,52 80,32 Z" fill="#f59e0b"/><path d="M80,48 C87,60 88,68 80,74 C72,68 73,60 80,48 Z" fill="#fef08a"/></svg>`
+            },
+            {
+                word: "ORO",
+                hint: "Monedas doradas dentro del cofre.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-oro" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fefce8"/><stop offset="100%" stop-color="#fef9c3"/></linearGradient><linearGradient id="g-gold-coin" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-oro)"/><circle cx="55" cy="95" r="28" fill="url(#g-gold-coin)" stroke="#b45309" stroke-width="3"/><circle cx="105" cy="95" r="28" fill="url(#g-gold-coin)" stroke="#b45309" stroke-width="3"/><circle cx="80" cy="65" r="32" fill="url(#g-gold-coin)" stroke="#b45309" stroke-width="3.5"/><circle cx="80" cy="65" r="24" fill="none" stroke="#fef08a" stroke-width="2" stroke-dasharray="6,3"/><text x="80" y="74" font-size="26" font-weight="extrabold" text-anchor="middle" fill="#78350f">👑</text></svg>`
+            },
+            {
+                word: "ROSA",
+                hint: "Flor de color rojo del jardín del palacio.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-rosa" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0fdf4"/><stop offset="100%" stop-color="#dcfce7"/></linearGradient><linearGradient id="g-rose" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fda4af"/><stop offset="40%" stop-color="#f43f5e"/><stop offset="100%" stop-color="#be123c"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-rosa)"/><path d="M80,140 Q75,95 80,65" stroke="#15803d" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M80,110 Q50,95 55,75 Q75,85 80,100 Z" fill="#22c55e" stroke="#15803d" stroke-width="2"/><path d="M80,95 Q110,80 105,60 Q85,70 80,88 Z" fill="#22c55e" stroke="#15803d" stroke-width="2"/><circle cx="80" cy="52" r="32" fill="url(#g-rose)" stroke="#9f1239" stroke-width="3"/><circle cx="80" cy="48" r="12" fill="#fecdd3" stroke="#e11d48" stroke-width="2"/></svg>`
+            },
+            {
+                word: "LUNA",
+                hint: "Brilla en la noche estrellada sobre el reino.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-luna" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0284c7"/><stop offset="50%" stop-color="#1e1b4b"/><stop offset="100%" stop-color="#0f172a"/></linearGradient><radialGradient id="g-moon-glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fde047" stop-opacity="0.4"/><stop offset="100%" stop-color="#0f172a" stop-opacity="0"/></radialGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-luna)"/><circle cx="75" cy="80" r="60" fill="url(#g-moon-glow)"/><path d="M95,25 C55,25 35,55 35,90 C35,125 60,138 100,132 C68,120 62,80 95,25 Z" fill="#fde047" stroke="#eab308" stroke-width="3"/><circle cx="120" cy="40" r="2.5" fill="#fff"/><circle cx="135" cy="80" r="3" fill="#fff"/><circle cx="30" cy="35" r="2" fill="#fff"/></svg>`
+            },
+            {
+                word: "MAGO",
+                hint: "Tiene varita mágica y sombrero de estrellas.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-mago" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#312e81"/><stop offset="100%" stop-color="#1e1b4b"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-mago)"/><path d="M30,140 L130,140 L80,70 Z" fill="#4338ca" stroke="#312e81" stroke-width="3"/><circle cx="80" cy="70" r="22" fill="#fed7aa"/><path d="M60,82 Q80,110 100,82 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><polygon points="20,55 140,55 80,10" fill="#1e1b4b" stroke="#f59e0b" stroke-width="3"/><line x1="120" y1="80" x2="145" y2="55" stroke="#78350f" stroke-width="4" stroke-linecap="round"/><polygon points="145,55 148,48 152,53 146,58" fill="#fde047"/></svg>`
+            },
+            {
+                word: "LAGO",
+                hint: "Agua azul donde nadan los patitos cerca del castillo.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-lago" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-lago)"/><ellipse cx="80" cy="100" rx="65" ry="38" fill="#38bdf8" stroke="#0284c7" stroke-width="4"/><path d="M30,95 Q80,85 130,95" stroke="#e0f2fe" stroke-width="3" fill="none"/><path d="M45,112 Q80,102 115,112" stroke="#e0f2fe" stroke-width="3" fill="none"/><ellipse cx="60" cy="98" rx="12" ry="6" fill="#22c55e"/><circle cx="60" cy="96" r="4" fill="#f43f5e"/></svg>`
+            },
+            {
+                word: "RANA",
+                hint: "Animalito verde que salta feliz en el estanque.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-rana" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ecfdf5"/><stop offset="100%" stop-color="#a7f3d0"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-rana)"/><ellipse cx="80" cy="105" rx="42" ry="30" fill="#4ade80" stroke="#16a34a" stroke-width="4"/><circle cx="55" cy="65" r="16" fill="#4ade80" stroke="#16a34a" stroke-width="3"/><circle cx="105" cy="65" r="16" fill="#4ade80" stroke="#16a34a" stroke-width="3"/><circle cx="55" cy="65" r="7" fill="#fff"/><circle cx="105" cy="65" r="7" fill="#fff"/><circle cx="55" cy="65" r="3.5" fill="#000"/><circle cx="105" cy="65" r="3.5" fill="#000"/><path d="M60,105 Q80,120 100,105" fill="none" stroke="#15803d" stroke-width="4" stroke-linecap="round"/></svg>`
+            },
+            {
+                word: "TORRE",
+                hint: "Construcción alta de piedra con ventana y bandera.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-torre" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f1f5f9"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-torre)"/><rect x="50" y="45" width="60" height="95" fill="#94a3b8" stroke="#475569" stroke-width="4"/><polygon points="40,45 80,15 120,45" fill="#ef4444" stroke="#b91c1c" stroke-width="3"/><line x1="80" y1="15" x2="80" y2="0" stroke="#78350f" stroke-width="3"/><polygon points="80,0 105,7 80,14" fill="#f59e0b"/><rect x="68" y="90" width="24" height="50" fill="#475569" rx="12"/></svg>`
+            },
+            {
+                word: "REINA",
+                hint: "Lleva un vestido brillante y una bella corona.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-reina" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fce7f3"/><stop offset="100%" stop-color="#fbcfe8"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-reina)"/><path d="M40,140 C40,90 120,90 120,140 Z" fill="#ec4899" stroke="#be123c" stroke-width="3"/><circle cx="80" cy="65" r="24" fill="#fed7aa"/><path d="M50,50 L110,50 L102,28 L80,40 L58,28 Z" fill="#f59e0b" stroke="#b45309" stroke-width="2"/><circle cx="70" cy="62" r="3" fill="#000"/><circle cx="90" cy="62" r="3" fill="#000"/><path d="M72,76 Q80,84 88,76" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round"/></svg>`
+            },
+            {
+                word: "COFRE",
+                hint: "Caja de madera donde se guarda el tesoro.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-cofre" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff7ed"/><stop offset="100%" stop-color="#ffedd5"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-cofre)"/><rect x="25" y="70" width="110" height="65" fill="#78350f" stroke="#451a03" stroke-width="4" rx="6"/><path d="M25,70 C25,40 135,40 135,70 Z" fill="#9a3412" stroke="#451a03" stroke-width="4"/><rect x="68" y="78" width="24" height="28" fill="#fbbf24" stroke="#b45309" stroke-width="3" rx="4"/></svg>`
+            },
+            {
+                word: "LLAVE",
+                hint: "Objeto dorado para abrir la puerta secreta.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-llave" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fefce8"/><stop offset="100%" stop-color="#fef3c7"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-llave)"/><circle cx="55" cy="70" r="26" fill="none" stroke="#f59e0b" stroke-width="12"/><rect x="75" y="64" width="60" height="12" fill="#f59e0b" rx="3"/><rect x="110" y="76" width="10" height="18" fill="#f59e0b" rx="2"/><rect x="123" y="76" width="10" height="12" fill="#f59e0b" rx="2"/></svg>`
+            },
+            {
+                word: "BRUJO",
+                hint: "Prepara pócimas mágicas con su caldero.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-brujo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fae8ff"/><stop offset="100%" stop-color="#f0abfc"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-brujo)"/><path d="M40,140 L120,140 L80,75 Z" fill="#7e22ce" stroke="#581c87" stroke-width="3"/><circle cx="80" cy="72" r="20" fill="#fed7aa"/><polygon points="25,55 135,55 80,12" fill="#581c87" stroke="#3b0764" stroke-width="3"/><circle cx="72" cy="70" r="2.5" fill="#000"/><circle cx="88" cy="70" r="2.5" fill="#000"/></svg>`
+            },
+            {
+                word: "FLOR",
+                hint: "Crece bonita con pétalos rosados en la primavera.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-flor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0fdf4"/><stop offset="100%" stop-color="#bbf7d0"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-flor)"/><path d="M80,140 L80,75" stroke="#16a34a" stroke-width="8" stroke-linecap="round"/><circle cx="80" cy="55" r="16" fill="#f59e0b" stroke="#b45309" stroke-width="3"/><circle cx="80" cy="25" r="15" fill="#ec4899"/><circle cx="80" cy="85" r="15" fill="#ec4899"/><circle cx="50" cy="55" r="15" fill="#ec4899"/><circle cx="110" cy="55" r="15" fill="#ec4899"/></svg>`
+            },
+            {
+                word: "GATO",
+                hint: "Felino suave que dice miau y duerme al sol.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-gato" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff7ed"/><stop offset="100%" stop-color="#ffedd5"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-gato)"/><circle cx="80" cy="85" r="35" fill="#f97316" stroke="#c2410c" stroke-width="3"/><polygon points="50,60 58,30 74,52" fill="#f97316" stroke="#c2410c" stroke-width="2"/><polygon points="110,60 102,30 86,52" fill="#f97316" stroke="#c2410c" stroke-width="2"/><circle cx="68" cy="80" r="5" fill="#fff"/><circle cx="92" cy="80" r="5" fill="#fff"/><circle cx="68" cy="80" r="2.5" fill="#000"/><circle cx="92" cy="80" r="2.5" fill="#000"/></svg>`
+            },
+            {
+                word: "ISLA",
+                hint: "Tierra con palmera rodeada de mar azul.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-isla" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0f2fe"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-isla)"/><path d="M20,110 Q80,80 140,110 C140,135 20,135 20,110 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="3"/><path d="M80,95 Q68,60 88,35" stroke="#78350f" stroke-width="7" fill="none"/><path d="M88,35 Q55,28 48,40 M88,35 Q115,20 122,38 M88,35 Q95,58 110,60" stroke="#16a34a" stroke-width="7" fill="none"/></svg>`
+            },
+            {
+                word: "MAPA",
+                hint: "Muestra el camino para encontrar el gran tesoro.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-mapa" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fefce8"/><stop offset="100%" stop-color="#fef3c7"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-mapa)"/><rect x="30" y="30" width="100" height="100" fill="#fef3c7" stroke="#d97706" stroke-width="4" rx="8"/><path d="M45,50 Q65,80 85,60 T115,100" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="6,6"/><text x="115" y="110" font-size="28" font-weight="bold" fill="#ef4444">❌</text></svg>`
+            },
+            {
+                word: "ROCA",
+                hint: "Piedra firme a la orilla del camino.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-roca" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f1f5f9"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-roca)"/><path d="M30,115 L50,50 L105,45 L130,115 Z" fill="#64748b" stroke="#334155" stroke-width="4"/><path d="M50,50 L80,72 L105,45" stroke="#475569" stroke-width="4" fill="none"/></svg>`
+            },
+            {
+                word: "CORONA",
+                hint: "Joya de oro con rubíes que lleva el rey.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-corona" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde047"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-corona)"/><path d="M22,110 L138,110 L130,48 L100,78 L80,30 L60,78 L30,48 Z" fill="#f59e0b" stroke="#b45309" stroke-width="4"/><rect x="28" y="110" width="104" height="16" fill="#b45309" rx="4"/><circle cx="30" cy="45" r="7" fill="#ef4444"/><circle cx="80" cy="25" r="8" fill="#3b82f6"/><circle cx="130" cy="45" r="7" fill="#10b981"/></svg>`
+            },
+            {
+                word: "ESCUDO",
+                hint: "Protege al valiente caballero de los peligros.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-escudo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eff6ff"/><stop offset="100%" stop-color="#dbeafe"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-escudo)"/><path d="M32,32 L128,32 L128,80 C128,115 80,138 80,138 C80,138 32,115 32,80 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="5"/><path d="M80,32 L80,138 C80,138 32,115 32,80 L32,32 Z" fill="#3b82f6"/><path d="M52,55 L108,105 M108,55 L52,105" stroke="#f59e0b" stroke-width="8"/></svg>`
+            },
+            {
+                word: "ESPADA",
+                hint: "Objeto brillante de metal que usa el guardián.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-espada" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-espada)"/><path d="M74,22 L86,22 L88,105 L72,105 Z" fill="#cbd5e1" stroke="#64748b" stroke-width="3"/><polygon points="80,8 88,22 72,22" fill="#94a3b8"/><rect x="48" y="105" width="64" height="14" fill="#f59e0b" rx="4"/><rect x="73" y="119" width="14" height="26" fill="#78350f" rx="3"/></svg>`
+            },
+            {
+                word: "DUENDE",
+                hint: "Personaje pequeño con orejas puntiagudas.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-duende" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0fdf4"/><stop offset="100%" stop-color="#bbf7d0"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-duende)"/><circle cx="80" cy="80" r="26" fill="#fed7aa"/><polygon points="32,65 80,15 128,65" fill="#16a34a" stroke="#15803d" stroke-width="3"/><circle cx="70" cy="78" r="3" fill="#000"/><circle cx="90" cy="78" r="3" fill="#000"/></svg>`
+            },
+            {
+                word: "MANZANA",
+                hint: "Fruta roja y dulce que crece en el manzano.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-manzana" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef2f2"/><stop offset="100%" stop-color="#fee2e2"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-manzana)"/><path d="M80,50 C52,28 25,60 32,100 C40,130 70,135 80,112 C90,135 120,130 128,100 C135,60 108,28 80,50 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="4"/><path d="M80,50 Q88,28 95,16" stroke="#78350f" stroke-width="5" fill="none"/><path d="M88,30 Q110,20 115,32 Q102,38 88,30 Z" fill="#22c55e"/></svg>`
+            },
+            {
+                word: "HADA",
+                hint: "Ser mágico que vuela con alas de luz.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-hada" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fdf4ff"/><stop offset="100%" stop-color="#fae8ff"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-hada)"/><ellipse cx="50" cy="72" rx="28" ry="16" fill="#f0abfc" opacity="0.85"/><ellipse cx="110" cy="72" rx="28" ry="16" fill="#f0abfc" opacity="0.85"/><circle cx="80" cy="60" r="22" fill="#fed7aa"/><path d="M55,125 L105,125 L80,80 Z" fill="#e879f9" stroke="#c084fc" stroke-width="3"/></svg>`
+            },
+            {
+                word: "CABALLO",
+                hint: "Corcel rápido que transporta al príncipe.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-caballo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff7ed"/><stop offset="100%" stop-color="#ffedd5"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-caballo)"/><path d="M45,120 L60,60 L95,40 L120,60 L95,80 L75,120 Z" fill="#9a3412" stroke="#451a03" stroke-width="4"/><circle cx="105" cy="52" r="4" fill="#fff"/><circle cx="105" cy="52" r="2" fill="#000"/></svg>`
+            },
+            {
+                word: "PRINCIPE",
+                hint: "Joven valiente del reino mágico.",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-principe" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0f2fe"/><stop offset="100%" stop-color="#bae6fd"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-principe)"/><circle cx="80" cy="62" r="24" fill="#fed7aa"/><path d="M45,130 L115,130 L80,85 Z" fill="#0284c7" stroke="#0369a1" stroke-width="3"/><path d="M55,45 L105,45 L98,25 L80,35 L62,25 Z" fill="#fbbf24" stroke="#d97706" stroke-width="2"/></svg>`
+            },
+            {
+                word: "PRINCESA",
+                hint: "Vive en la torre y tiene un bonito vestido.",
+                type: "order",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-princesa" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fdf2f8"/><stop offset="100%" stop-color="#fbcfe8"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-princesa)"/><circle cx="80" cy="60" r="24" fill="#fed7aa"/><path d="M40,130 C40,85 120,85 120,130 Z" fill="#f43f5e" stroke="#be123c" stroke-width="3"/><path d="M58,42 L102,42 L94,22 L80,32 L66,22 Z" fill="#fbbf24" stroke="#d97706" stroke-width="2"/></svg>`
+            },
+            {
+                word: "CASTILLO",
+                hint: "¡La gran fortaleza completa del reino mágico!",
+                type: "type",
+                svg: `<svg viewBox="0 0 160 160" class="w-full h-full"><defs><linearGradient id="g-bg-castillo" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f1f5f9"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs><rect width="160" height="160" rx="20" fill="url(#g-bg-castillo)"/><rect x="25" y="60" width="110" height="75" fill="#cbd5e1" stroke="#475569" stroke-width="4"/><rect x="20" y="32" width="30" height="103" fill="#94a3b8" stroke="#475569" stroke-width="3"/><rect x="110" y="32" width="30" height="103" fill="#94a3b8" stroke="#475569" stroke-width="3"/><polygon points="20,32 35,12 50,32" fill="#ef4444"/><polygon points="110,32 125,12 140,32" fill="#ef4444"/><rect x="64" y="85" width="32" height="50" fill="#78350f" rx="16"/></svg>`
+            }
+        ];
+
+        /* ====================================================================
+           ESTADO Y VARIABLES GLOBALES DEL JUEGO
+           ==================================================================== */
+        let currentIndex = 0;
+        let stars = 0;
+        let currentInput = [];
+        let scrambledLetters = [];
+        let isMuted = false;
+        let isTransitioning = false;
+
+        // Audio synthesizer (Web Audio API)
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            if (isMuted) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+
+                if (type === 'tap') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(180, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'milestone') {
+                    // Fanfarría de hito
+                    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                    notes.forEach((freq, idx) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.type = 'triangle';
+                        o.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        o.connect(g);
+                        g.connect(ctx.destination);
+                        g.gain.setValueAtTime(0.3, now + idx * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+                        o.start(now + idx * 0.1);
+                        o.stop(now + idx * 0.1 + 0.3);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio not allowed yet", e);
+            }
+        }
+
+        function speakCurrentWord() {
+            if (isMuted) return;
+            const item = WORD_BANK[currentIndex];
+            if (!item) return;
+
+            // Animar boca de Tobi
+            const mouth = document.getElementById('tobi-mouth');
+            if (mouth) mouth.classList.add('anim-talking');
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(item.word.toLowerCase());
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+
+                utterance.onend = () => {
+                    if (mouth) mouth.classList.remove('anim-talking');
+                };
+                utterance.onerror = () => {
+                    if (mouth) mouth.classList.remove('anim-talking');
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                setTimeout(() => {
+                    if (mouth) mouth.classList.remove('anim-talking');
+                }, 1000);
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('toggle-audio-btn');
+            if (btn) {
+                btn.textContent = isMuted ? '🔇' : '🔊';
+            }
+        }
+
+        function loadLevel(index) {
+            if (index < 0 || index >= WORD_BANK.length) return;
+            
+            currentIndex = index;
+            currentInput = [];
+            isTransitioning = false;
+
+            const item = WORD_BANK[currentIndex];
+
+            // 1. Actualizar barra de progreso y badges
+            document.getElementById('level-text').textContent = `Nivel ${currentIndex + 1} de 30`;
+            document.getElementById('word-category').textContent = `Palabra ${currentIndex + 1} de 30`;
+            
+            const pct = ((currentIndex) / 30) * 100;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+
+            // 2. Tobi Instrucción y Badge de Modo
+            const badge = document.getElementById('mode-badge');
+            const instruction = document.getElementById('tobi-instruction');
+
+            if (item.type === 'order') {
+                badge.textContent = 'Modo 1: Ordenar Fichas 🧩';
+                badge.className = 'bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-indigo-200';
+                instruction.textContent = `¡Selecciona y ordena las fichas para escribir "${item.word}"!`;
+                
+                document.getElementById('mode-order-controls').classList.remove('hidden');
+                document.getElementById('mode-type-controls').classList.add('hidden');
+            } else {
+                badge.textContent = 'Modo 2: Escribir Teclado ⌨️';
+                badge.className = 'bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-purple-200';
+                instruction.textContent = `¡Escribe el nombre del objeto "${item.word}" usando el teclado!`;
+
+                document.getElementById('mode-order-controls').classList.add('hidden');
+                document.getElementById('mode-type-controls').classList.remove('hidden');
+            }
+
+            // 3. Renderizar SVG
+            document.getElementById('svg-display').innerHTML = item.svg;
+
+            // 4. Renderizar Ranuras Vacías (Slots)
+            renderSlots();
+
+            // 5. Si es orden, mezclar letras
+            if (item.type === 'order') {
+                setupOrderTiles();
+            }
+
+            // Reproducir sonido de voz
+            setTimeout(() => {
+                speakCurrentWord();
+            }, 300);
+        }
+
+        function renderSlots() {
+            const item = WORD_BANK[currentIndex];
+            const container = document.getElementById('slots-container');
+            container.innerHTML = '';
+
+            for (let i = 0; i < item.word.length; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot w-10 h-12 md:w-14 md:h-16 rounded-2xl flex items-center justify-center text-xl md:text-3xl font-black text-indigo-950 transition-all';
+                
+                if (i < currentInput.length) {
+                    slot.textContent = currentInput[i];
+                    slot.classList.add('filled', 'scale-105');
+                } else {
+                    slot.textContent = '';
+                }
+
+                container.appendChild(slot);
+            }
+        }
+
+        function setupOrderTiles() {
+            const item = WORD_BANK[currentIndex];
+            const letters = item.word.split('');
+            
+            // Desordenar
+            scrambledLetters = [...letters].sort(() => Math.random() - 0.5);
+            // Si por azar queda igual, rotar
+            if (scrambledLetters.join('') === item.word && letters.length > 1) {
+                scrambledLetters.reverse();
+            }
+
+            renderOrderTiles();
+        }
+
+        function renderOrderTiles() {
+            const container = document.getElementById('letter-tiles-container');
+            container.innerHTML = '';
+
+            scrambledLetters.forEach((letter, idx) => {
+                const tile = document.createElement('button');
+                tile.className = 'tile-btn bg-amber-400 hover:bg-amber-300 text-indigo-950 font-black text-xl md:text-2xl w-11 h-12 md:w-14 md:h-14 rounded-2xl border-2 border-amber-500 flex items-center justify-center cursor-pointer';
+                tile.textContent = letter;
+                tile.onclick = () => selectOrderTile(letter, tile);
+                container.appendChild(tile);
+            });
+        }
+
+        function selectOrderTile(letter, buttonEl) {
+            if (isTransitioning) return;
+            const targetWord = WORD_BANK[currentIndex].word;
+            if (currentInput.length >= targetWord.length) return;
+
+            playSound('tap');
+            currentInput.push(letter);
+            buttonEl.style.visibility = 'hidden';
+
+            renderSlots();
+            checkWordCompletion();
+        }
+
+        function pressKey(letter) {
+            if (isTransitioning) return;
+            const targetWord = WORD_BANK[currentIndex].word;
+            if (currentInput.length >= targetWord.length) return;
+
+            playSound('tap');
+            currentInput.push(letter.toUpperCase());
+            renderSlots();
+            checkWordCompletion();
+        }
+
+        function deleteLastLetter() {
+            if (isTransitioning || currentInput.length === 0) return;
+            playSound('tap');
+            
+            const removed = currentInput.pop();
+            renderSlots();
+
+            // Si es modo orden, restaurar las fichas
+            if (WORD_BANK[currentIndex].type === 'order') {
+                const container = document.getElementById('letter-tiles-container');
+                const buttons = container.querySelectorAll('button');
+                
+                // Encontrar el botón oculto con esa letra
+                for (let btn of buttons) {
+                    if (btn.style.visibility === 'hidden' && btn.textContent === removed) {
+                        btn.style.visibility = 'visible';
+                        break;
+                    }
+                }
+            }
+        }
+
+        function clearWord() {
+            if (isTransitioning) return;
+            playSound('tap');
+            currentInput = [];
+            renderSlots();
+            if (WORD_BANK[currentIndex].type === 'order') {
+                renderOrderTiles();
+            }
+        }
+
+        function giveHint() {
+            playSound('tap');
+            const item = WORD_BANK[currentIndex];
+            const nextIdx = currentInput.length;
+            if (nextIdx < item.word.length) {
+                const correctChar = item.word[nextIdx];
+                const instruction = document.getElementById('tobi-instruction');
+                instruction.textContent = `💡 ¡Pista! La siguiente letra es la "${correctChar}". ${item.hint}`;
+                speakCurrentWord();
+            }
+        }
+
+        function checkWordCompletion() {
+            const targetWord = WORD_BANK[currentIndex].word;
+
+            if (currentInput.length === targetWord.length) {
+                const typedWord = currentInput.join('');
+
+                if (typedWord === targetWord) {
+                    // ¡ACIERTO CORRECTO!
+                    isTransitioning = true;
+                    playSound('success');
+                    
+                    // Recompensas
+                    stars += 10;
+                    document.getElementById('star-count').textContent = stars;
+
+                    // Animar mascota
+                    const dragon = document.getElementById('dragon-wrapper');
+                    if (dragon) dragon.classList.add('animate-bounce-happy');
+                    
+                    document.getElementById('tobi-instruction').textContent = `¡SÚPER BIEN! ¡Has escrito "${targetWord}" perfectamente! 🌟`;
+
+                    // Efecto de brillo
+                    spawnSparkles();
+
+                    setTimeout(() => {
+                        if (dragon) dragon.classList.remove('animate-bounce-happy');
+                        
+                        // VERIFICAR HITO DE CASTILLO CADA 5 NIVELES
+                        const completedCount = currentIndex + 1;
+                        if (completedCount % 5 === 0 || completedCount === 30) {
+                            showMilestoneModal(completedCount);
+                        } else {
+                            nextLevel();
+                        }
+                    }, 1400);
+
+                } else {
+                    // ERROR - SACUDIR CASILLAS
+                    playSound('wrong');
+                    const slots = document.querySelectorAll('.letter-slot');
+                    slots.forEach(s => s.classList.add('animate-shake'));
+
+                    document.getElementById('tobi-instruction').textContent = `¡Casi! Inténtalo de nuevo. Escucha la palabra.`;
+
+                    setTimeout(() => {
+                        slots.forEach(s => s.classList.remove('animate-shake'));
+                        clearWord();
+                    }, 800);
+                }
+            }
+        }
+
+        function spawnSparkles() {
+            const card = document.getElementById('game-card');
+            for (let i = 0; i < 12; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-sparkle text-2xl';
+                star.textContent = ['⭐', '✨', '🎉', '💫'][Math.floor(Math.random() * 4)];
+                star.style.left = '50%';
+                star.style.top = '50%';
+                
+                const dx = (Math.random() - 0.5) * 300 + 'px';
+                const dy = (Math.random() - 0.5) * 300 + 'px';
+                star.style.setProperty('--dx', dx);
+                star.style.setProperty('--dy', dy);
+
+                card.appendChild(star);
+                setTimeout(() => star.remove(), 1000);
+            }
+        }
+
+        function showMilestoneModal(levelNum) {
+            playSound('milestone');
+            const modal = document.getElementById('castle-milestone-modal');
+            const title = document.getElementById('milestone-title');
+            const desc = document.getElementById('milestone-desc');
+            const badge = document.getElementById('milestone-badge');
+            const svgContainer = document.getElementById('castle-stage-svg');
+
+            const stage = Math.min(Math.floor(levelNum / 5), 6);
+
+            if (levelNum === 30) {
+                badge.textContent = '🏆 ¡GRAN FINAL DEL REINO!';
+                title.textContent = '¡CASTILLO MAGICO COMPLETO! 👑';
+                desc.textContent = '¡Felicidades! Has completado las 30 palabras y te has convertido en el Gran Maestro de Lectoescritura del Reino.';
+            } else {
+                badge.textContent = `Hito ${stage} de 6`;
+                title.textContent = `¡Tu Castillo ha Crecido! 🏰`;
+                desc.textContent = `¡Completaste ${levelNum} palabras! Mira cómo evoluciona la fortaleza del reino.`;
+            }
+
+            svgContainer.innerHTML = getCastleStageSVG(stage);
+            modal.classList.remove('hidden');
+        }
+
+        // Definida globalmente para resolver ReferenceError
+        window.closeMilestoneModal = function() {
+            const modal = document.getElementById('castle-milestone-modal');
+            modal.classList.add('hidden');
+            nextLevel();
+        };
+
+        function nextLevel() {
+            if (currentIndex + 1 < WORD_BANK.length) {
+                loadLevel(currentIndex + 1);
+            } else {
+                // Reiniciar juego
+                loadLevel(0);
+            }
+        }
+
+        function getCastleStageSVG(stage) {
+            // Genera SVGs evolutivos para los 6 hitos (niveles 5, 10, 15, 20, 25, 30)
+            const stages = {
+                1: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#0f172a"/><path d="M0,160 L300,160 L300,200 L0,200 Z" fill="#065f46"/><rect x="110" y="100" width="80" height="60" fill="#64748b" stroke="#334155" stroke-width="3"/><polygon points="110,100 150,70 190,100" fill="#ef4444"/><rect x="135" y="125" width="30" height="35" fill="#78350f" rx="15"/><circle cx="150" cy="40" r="15" fill="#fde047" opacity="0.8"/></svg>`,
+                2: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#0f172a"/><path d="M0,160 L300,160 L300,200 L0,200 Z" fill="#065f46"/><rect x="80" y="90" width="140" height="70" fill="#64748b" stroke="#334155" stroke-width="3"/><rect x="70" y="60" width="35" height="100" fill="#475569" stroke="#1e293b" stroke-width="3"/><rect x="195" y="60" width="35" height="100" fill="#475569" stroke="#1e293b" stroke-width="3"/><polygon points="70,60 87.5,35 105,60" fill="#ef4444"/><polygon points="195,60 212.5,35 230,60" fill="#ef4444"/><rect x="135" y="115" width="30" height="45" fill="#78350f" rx="15"/></svg>`,
+                3: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#0f172a"/><path d="M0,160 L300,160 L300,200 L0,200 Z" fill="#065f46"/><rect x="60" y="80" width="180" height="80" fill="#64748b" stroke="#334155" stroke-width="3"/><rect x="120" y="40" width="60" height="120" fill="#475569" stroke="#1e293b" stroke-width="3"/><polygon points="120,40 150,15 180,40" fill="#f59e0b"/><rect x="50" y="55" width="30" height="105" fill="#475569"/><rect x="220" y="55" width="30" height="105" fill="#475569"/><polygon points="50,55 65,30 80,55" fill="#ef4444"/><polygon points="220,55 235,30 250,55" fill="#ef4444"/><rect x="135" y="115" width="30" height="45" fill="#78350f" rx="15"/></svg>`,
+                4: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#0f172a"/><path d="M0,150 L300,150 L300,200 L0,200 Z" fill="#0284c7"/><path d="M0,165 L300,165 L300,200 L0,200 Z" fill="#065f46"/><rect x="50" y="70" width="200" height="95" fill="#94a3b8" stroke="#334155" stroke-width="3"/><rect x="110" y="30" width="80" height="135" fill="#64748b" stroke="#1e293b" stroke-width="3"/><polygon points="110,30 150,5 190,30" fill="#f59e0b"/><rect x="40" y="45" width="35" height="120" fill="#475569"/><rect x="225" y="45" width="35" height="120" fill="#475569"/><polygon points="40,45 57.5,20 75,45" fill="#ef4444"/><polygon points="225,45 242.5,20 260,45" fill="#ef4444"/><rect x="130" y="110" width="40" height="55" fill="#78350f" rx="20"/><line x1="150" y1="5" x2="150" y2="-10" stroke="#78350f" stroke-width="2"/><polygon points="150,-10 165,-5 150,0" fill="#ef4444"/></svg>`,
+                5: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#1e1b4b"/><circle cx="150" cy="70" r="80" fill="#fde047" opacity="0.15"/><path d="M0,150 L300,150 L300,200 L0,200 Z" fill="#0284c7"/><rect x="40" y="60" width="220" height="105" fill="#cbd5e1" stroke="#334155" stroke-width="3"/><rect x="105" y="20" width="90" height="145" fill="#94a3b8" stroke="#1e293b" stroke-width="3"/><polygon points="105,20 150,-5 195,20" fill="#f59e0b"/><rect x="30" y="35" width="40" height="130" fill="#64748b"/><rect x="230" y="35" width="40" height="130" fill="#64748b"/><polygon points="30,35 50,10 70,35" fill="#ef4444"/><polygon points="230,35 250,10 270,35" fill="#ef4444"/><rect x="125" y="105" width="50" height="60" fill="#78350f" rx="25" stroke="#f59e0b" stroke-width="3"/></svg>`,
+                6: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#1e1b4b"/><circle cx="150" cy="80" r="95" fill="#fde047" opacity="0.25"/><text x="30" y="40" font-size="20">🎆</text><text x="250" y="40" font-size="20">🎆</text><text x="140" y="25" font-size="24">👑</text><path d="M0,150 L300,150 L300,200 L0,200 Z" fill="#0284c7"/><rect x="30" y="50" width="240" height="115" fill="#f8fafc" stroke="#334155" stroke-width="4"/><rect x="95" y="10" width="110" height="155" fill="#cbd5e1" stroke="#1e293b" stroke-width="4"/><polygon points="95,10 150,-20 205,10" fill="#fbbf24" stroke="#d97706" stroke-width="3"/><rect x="20" y="25" width="45" height="140" fill="#94a3b8"/><rect x="235" y="25" width="45" height="140" fill="#94a3b8"/><polygon points="20,25 42.5,-2 65,25" fill="#ef4444"/><polygon points="235,25 257.5,-2 280,25" fill="#ef4444"/><rect x="120" y="95" width="60" height="70" fill="#78350f" rx="30" stroke="#fbbf24" stroke-width="4"/><line x1="150" y1="-20" x2="150" y2="-35" stroke="#78350f" stroke-width="3"/><polygon points="150,-35 175,-27 150,-20" fill="#3b82f6"/></svg>`
+            };
+            return stages[stage] || stages[1];
+        }
+
+        // Manejador de teclado físico (para Modo Escribir)
+        document.addEventListener('keydown', (e) => {
+            const item = WORD_BANK[currentIndex];
+            if (!item || item.type !== 'type') return;
+
+            const key = e.key.toUpperCase();
+            if (key === 'BACKSPACE') {
+                deleteLastLetter();
+            } else if (key.length === 1 && key >= 'A' && key <= 'Z' || key === 'Ñ') {
+                pressKey(key);
+            }
+        });
+
+        // Inicializar al cargar la página
+        window.onload = function() {
+            loadLevel(0);
+        };
+    </script>
+</body>
+</html>
